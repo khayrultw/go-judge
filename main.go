@@ -1,24 +1,16 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/khayrultw/go-judge/controllers"
-	"github.com/khayrultw/go-judge/models"
 )
 
 func main() {
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
 
-		var code models.Code
-		c.BindJSON(&code)
-	})
+	r.GET("/test/python", controllers.TestPython)
+	r.GET("/test/kotlin", controllers.TestKotlin)
 
 	codeRepo := controllers.New()
 	r.POST("/code", codeRepo.PostCode)

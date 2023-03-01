@@ -7,8 +7,10 @@ import (
 	"os/exec"
 )
 
-func JudgeCode(sourceCodeFilePath string, testCaseFilePath string) {
-	fi, err := os.Open(testCaseFilePath)
+func JudgeCode(sourceCodeFilePath string, testCaseFilePath string) string {
+	pwd, _ := os.Getwd()
+	println(pwd + testCaseFilePath)
+	fi, err := os.Open(pwd + testCaseFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -19,7 +21,6 @@ func JudgeCode(sourceCodeFilePath string, testCaseFilePath string) {
 
 	txt := ""
 	out := ""
-	status := true
 
 	for scanner.Scan() {
 		tmp := scanner.Text()
@@ -27,27 +28,30 @@ func JudgeCode(sourceCodeFilePath string, testCaseFilePath string) {
 			continue
 		}
 		if tmp == "#END_OF_IN" {
-			out = runCode(txt, sourceCodeFilePath)
+			out = runCode(txt, pwd+sourceCodeFilePath)
 			txt = ""
 		} else if tmp == "#END_OF_OUT" {
 			if txt != out {
-				status = false
 				fmt.Printf("Expected output:\n%s\n", txt)
 				fmt.Printf("Wrong Answer\n")
-				break
+				return "Wrong Answer"
+
 			}
 			txt = ""
 		} else {
 			txt += tmp + "\n"
 		}
 	}
-	if status {
-		fmt.Printf("Accepted\n")
-	}
+
+	fmt.Printf("Accepted\n")
+
+	return "Accepted"
+
 }
 
 func runCode(input string, sourceCodeFilePath string) string {
-	cmd := exec.Command("./test.sh", sourceCodeFilePath, input)
+	pwd, _ := os.Getwd()
+	cmd := exec.Command(pwd+"/judge/test.sh", sourceCodeFilePath, input)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Runtime Error: %s\n", string(out))
